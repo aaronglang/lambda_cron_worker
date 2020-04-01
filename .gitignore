@@ -1,0 +1,13 @@
+.vscode
+.python-version
+
+# env files
+.env
+*.env
+
+# serverless
+_meta
+.serverless
+
+# sample event
+event.json
