@@ -4,6 +4,7 @@ import pandas as pd
 
 
 def state_submit(event, context):
+    # ensure list of search parameters (states, makes) are present in request
     if 'states' not in event or 'makes' not in event:
         return json.dumps({
             'message': 'No search parameters supplied'
@@ -11,29 +12,13 @@ def state_submit(event, context):
     else:
         STATES = event['states']
         MAKES = event['makes']
-    if os.environ.get('ENV') == 'local':
-        from dotenv import load_dotenv
-        load_dotenv()
-        # set variables
-        KEY = os.environ.get('AWS_KEY')
-        SECRET = os.environ.get('AWS_SECRET')
-        # create aws batch client
-        batch = boto3.client('batch', region_name='us-east-1', aws_access_key_id=KEY, aws_secret_access_key=SECRET)
-        s3 = boto3.client('s3', region_name='us-east-1', aws_access_key_id=KEY, aws_secret_access_key=SECRET)
-        # ensure script should run
-        print(f'Are you sure you would like to run scraper? [y|n]:')
-        response = input()
-        if response != 'y':
-            print('Goodbye!')
-            exit()
-        else:
-            print(f'Running scraper on states: {", ".join(STATES)}...')
-    else:
-        batch = boto3.client('batch', region_name='us-east-1')
-        s3 = boto3.client('s3', region_name='us-east-1')
 
-    # create job definition
-    job = {
+    # create boto3 clients for s3 and batch
+    batch = boto3.client('batch', region_name='us-east-1')
+    s3 = boto3.client('s3', region_name='us-east-1')
+
+    # create dictionary of job definition
+    job_definition = {
         'jobName': 'car-scraper',
         'jobDefinition': 'car-scraper:8',
         'jobQueue': 'cl-scraper',
@@ -66,7 +51,8 @@ def state_submit(event, context):
             ]
         }
     }
-    # get list of cities
+
+    # get list of cities from s3 csv
     bucketName = 'all-types-cl-data'
     cityCsvName = 'cl_db/craigslist_cities.csv'
     city_obj = s3.get_object(Bucket=bucketName, Key=cityCsvName)
@@ -78,7 +64,7 @@ def state_submit(event, context):
     # create jobs to be submitted
     for make in MAKES:
         for i, city in searches.iterrows():
-            _job = copy.deepcopy(job)
+            _job = copy.deepcopy(job_definition)
 
             _job['containerOverrides']['environment'].append({
             'name': 'SEARCH_CITY_URL',

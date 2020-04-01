@@ -10,4 +10,4 @@ _meta
 .serverless
 
 # sample event
-event.json
+input.json

@@ -5,6 +5,8 @@ verify_ssl = true
 
 [dev-packages]
 python-dotenv = "*"
+pylint = "*"
+rope = "*"
 
 [packages]
 boto3 = "*"
