@@ -4,7 +4,7 @@ provider:
   name: aws
   runtime: python3.7
   role: arn:aws:iam::510414441092:role/service-role/lambdaBatchRole
-  timeout: 45
+  timeout: 60
 
 functions:
   stateSubmit:
@@ -14,7 +14,7 @@ functions:
 package:
     individually: true
     exclude:
-        - "event.json"
+        - "input.json"
         - "*.env"
         - ".env"
         - "Pipfile"
