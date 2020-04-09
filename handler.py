@@ -70,10 +70,11 @@ def state_submit(event, context):
             'name': 'SEARCH_CITY_URL',
             'value': city['link']
             })
-            _job['containerOverrides']['environment'].append({
-                'name': 'MAKE_MODEL',
-                'value': make
-            })
+            if make != 'generic':
+                _job['containerOverrides']['environment'].append({
+                    'name': 'MAKE_MODEL',
+                    'value': make
+                })
             _city = ''.join(s for s in city['city_name'] if s.isalnum())
             _job['jobName'] = f'{make}-{_city}'
             job_queue.append(_job)
