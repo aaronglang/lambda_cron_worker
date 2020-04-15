@@ -20,7 +20,7 @@ def state_submit(event, context):
     # create dictionary of job definition
     job_definition = {
         'jobName': 'car-scraper',
-        'jobDefinition': 'car-scraper:8',
+        'jobDefinition': 'car-scraper:9',
         'jobQueue': 'cl-scraper',
         'containerOverrides': {
             'environment': [
@@ -75,6 +75,9 @@ def state_submit(event, context):
                     'name': 'MAKE_MODEL',
                     'value': make
                 })
+            else:
+                _job['containerOverrides']['vcpus'] = 14
+                _job['containerOverrides']['memory'] = 2000
             _city = ''.join(s for s in city['city_name'] if s.isalnum())
             _job['jobName'] = f'{make}-{_city}'
             job_queue.append(_job)
